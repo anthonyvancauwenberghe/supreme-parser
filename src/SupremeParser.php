@@ -4,20 +4,19 @@ namespace Supreme\Parser;
 
 use Supreme\Parser\Abstracts\SupremeHtmlParser;
 
-class SupremeSpringSummer2019Parser extends SupremeHtmlParser
+class SupremeParser extends SupremeHtmlParser
 {
     protected $parseDelay;
 
-    protected $route = "/previews/springsummer2019/all";
-
     /**
-     * SupremeSpringSummer2019Parser constructor.
+     * SupremeParser constructor.
+     * @param string $route
      * @param int $parseDelay
      */
-    public function __construct(int $parseDelay = 5)
+    public function __construct(string $route, int $parseDelay = 0)
     {
         $this->parseDelay = $parseDelay;
-        parent::__construct();
+        parent::__construct($route);
     }
 
 
@@ -85,16 +84,13 @@ class SupremeSpringSummer2019Parser extends SupremeHtmlParser
     public function parse()
     {
         $products = [];
-        $i = 0;
         foreach ($this->getProductRoutes() as $productRoute) {
             try {
-                $parsedProduct = (new SupremeSpringSummer2019ProductParser($productRoute))->parse();
+                $parsedProduct = (new SupremeProductParser($productRoute))->parse();
                 $products = array_merge($products, $parsedProduct);
-                sleep($this->parseDelay);
-                $i++;
-                echo $i;
-            }
-            catch (\Throwable $e){
+                if ($this->parseDelay > 0)
+                    sleep($this->parseDelay);
+            } catch (\Throwable $e) {
                 echo $e->getMessage();
             }
 

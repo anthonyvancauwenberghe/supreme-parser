@@ -4,7 +4,7 @@ namespace Supreme\Parser;
 
 use Supreme\Parser\Abstracts\SupremeHtmlParser;
 
-class SupremeSpringSummer2019ProductParser extends SupremeHtmlParser
+class SupremeProductParser extends SupremeHtmlParser
 {
     public function getProductsArray()
     {

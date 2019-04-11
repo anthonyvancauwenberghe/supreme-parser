@@ -18,7 +18,8 @@
     "require": {
         "php": "^7.2",
         "guzzlehttp/guzzle": "^6.3",
-        "paquettg/php-html-parser": "^2.0"
+        "paquettg/php-html-parser": "^2.0",
+        "ext-json": "*"
     },
     "require-dev": {
         "phpunit/phpunit": "^8.0"
