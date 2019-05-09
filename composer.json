@@ -17,9 +17,10 @@
     ],
     "require": {
         "php": "^7.2",
+        "ext-json": "*",
         "guzzlehttp/guzzle": "^6.3",
-        "paquettg/php-html-parser": "^2.0",
-        "ext-json": "*"
+        "nesbot/carbon": "^2.17",
+        "paquettg/php-html-parser": "^2.0"
     },
     "require-dev": {
         "phpunit/phpunit": "^8.0"
@@ -27,10 +28,7 @@
     "autoload": {
         "psr-4": {
             "Supreme\\Parser\\": "src"
-        },
-        "files": [
-            "src/Support/helpers.php"
-        ]
+        }
     },
 
     "autoload-dev": {

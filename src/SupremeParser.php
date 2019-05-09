@@ -2,12 +2,13 @@
 
 namespace Supreme\Parser;
 
-use Supreme\Parser\Abstracts\SupremeHtmlParser;
+use Supreme\Parser\Abstracts\HtmlParser;
 
-class SupremeParser extends SupremeHtmlParser
+class SupremeParser extends HtmlParser
 {
     protected $parseDelay;
 
+    protected $baseUrl = "https://www.supremenewyork.com";
     /**
      * SupremeParser constructor.
      * @param string $route
@@ -18,7 +19,6 @@ class SupremeParser extends SupremeHtmlParser
         $this->parseDelay = $parseDelay;
         parent::__construct($route);
     }
-
 
     public function getProductRoutes(): array
     {
@@ -86,7 +86,7 @@ class SupremeParser extends SupremeHtmlParser
         $products = [];
         foreach ($this->getProductRoutes() as $productRoute) {
             try {
-                $parsedProduct = (new SupremeProductParser($productRoute))->parse();
+                $parsedProduct = (new ProductParser($productRoute))->parse();
                 $products = array_merge($products, $parsedProduct);
                 if ($this->parseDelay > 0)
                     sleep($this->parseDelay);
