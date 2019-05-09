@@ -29,7 +29,7 @@ class SupremeCommunityLatestDroplistParser
     protected function execute()
     {
         $pool = new Pool(new Client(), $this->buildRequests(), [
-            'concurrency' => 3,
+            'concurrency' => 1,
             'fulfilled' => function (Response $response, $index) {
                 $parser = new SupremeCommunityDropListItemParser($response);
                 $this->items[] = $parser->parse();

@@ -7,7 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Supreme\Parser\Resolvers\LatestDropDateResolver;
 
 
-class ParserTest extends TestCase
+class ResolverTest extends TestCase
 {
     public function testShit()
     {

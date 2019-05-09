@@ -22,7 +22,9 @@ class ParserTest extends TestCase
     public function testDroplist()
     {
         $parser = SupremeCommunityDropListItemIdsParser::getLatestDropWeekParser();
-        $parser->parse();
+        $products = $parser->parse();
+
+        $this->assertNotEmpty($products);
     }
 
     public function testParseLatestDroplist()
