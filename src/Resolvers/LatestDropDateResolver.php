@@ -12,7 +12,7 @@ class LatestDropDateResolver
     {
         $time = Carbon::now();
 
-        $time->subDays(3);
+        $time->subDays(6);
 
         while ($time->dayOfWeekIso !== 4) {
             $time->addDay();

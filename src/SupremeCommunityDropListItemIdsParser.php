@@ -8,17 +8,15 @@ use Supreme\Parser\Resolvers\LatestDropDateResolver;
 
 class SupremeCommunityDropListItemIdsParser extends HtmlParser
 {
-    protected $baseUrl = "https://www.supremecommunity.com/season/spring-summer2019/droplist";
+    protected $baseUrl = "https://www.supremecommunity.com/season/spring-summer2019/droplist/";
 
     public function __construct(string $date)
     {
-        parent::__construct("/$date/");
+        parent::__construct("$date/");
     }
 
     public function parse(): array
     {
-        $urls = [];
-
         $itemIds = [];
 
         /** @var HtmlNode $node */
