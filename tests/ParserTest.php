@@ -12,6 +12,7 @@ class ParserTest extends TestCase
 {
     public function testLookbook()
     {
+        $this->markTestSkipped("");
         $parser = new SupremeLookbookParser("/previews/springsummer2019/all", true);
         $products = $parser->parse();
 

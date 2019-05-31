@@ -33,11 +33,10 @@ class SupremeCommunityDropListItemIdsParser extends HtmlParser
 
     protected function extractItemId(HtmlNode $cardcard2node)
     {
-        foreach ($cardcard2node->getChildren() as $node) {
-            if ($node instanceof HtmlNode && $node->getTag()->hasAttribute('data-itemid')) {
-                return $node->getTag()->getAttribute('data-itemid')['value'];
-            }
+        if ($cardcard2node instanceof HtmlNode && $cardcard2node->getTag()->hasAttribute('data-itemid')) {
+            return $cardcard2node->getTag()->getAttribute('data-itemid')['value'];
         }
+
         throw new \RuntimeException("Extracting itemid from cardnode failed. Maybe website changed?");
     }
 
