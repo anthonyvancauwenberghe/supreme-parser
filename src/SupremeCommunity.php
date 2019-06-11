@@ -56,8 +56,9 @@ class SupremeCommunity
                 $votes = []; //$this->parseVotes($id);
 
                 $items[] = array_merge($item, $votes);
+
                 if ($this->debug)
-                    echo "Successfully parsed: ' $id \n";
+                    echo "Successfully parsed: $id - ".$item['title']." \n";
 
                 sleep($this->delay);
             } catch (ClientException $exception) {

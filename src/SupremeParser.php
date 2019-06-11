@@ -49,12 +49,16 @@ class SupremeParser extends HtmlParser
         foreach ($array as $product) {
             $unformatted = ($products[$product['title']]['unformatted'] ?? []);
             $unformatted[] = $product;
-            $products[$product['title']] = [
-                "title" => $product['title'],
-                "description" => $product['caption'],
+
+            $title = htmlspecialchars_decode($product['title'], ENT_QUOTES);
+            $caption = htmlspecialchars_decode($product['caption'], ENT_QUOTES);
+
+            $products[$title] = [
+                "title" => $title,
+                "description" => $caption,
                 "url" => $this->baseUrl . $product['url'],
-                "colors" => $this->createColorsArray($products, $product['title'], $product['color']),
-                "images" => $this->createImageArray($products, $product['title'], $product['color'], $product['imageUrl'], $product['zoomedImageUrl']),
+                "colors" => $this->createColorsArray($products, $title, $product['color']),
+                "images" => $this->createImageArray($products, $title, $product['color'], $product['imageUrl'], $product['zoomedImageUrl']),
                 "unformatted" => $unformatted
             ];
         }

@@ -9,8 +9,8 @@ class DropListItemParser extends ResponseParser
 {
     public function parse(): array
     {
-        $title = $this->parseTitle();
-        $caption = $this->parseDescription();
+        $title = $this->strip_tags_content($this->parseTitle());
+        $caption = $this->strip_tags_content($this->parseDescription());
         $prices = $this->parsePrices();
         $colors = $this->parseColors();
         $image = $this->parseImage();
@@ -29,7 +29,7 @@ class DropListItemParser extends ResponseParser
         /** @var HtmlNode $node */
         $node = $this->dom->getElementsByClass("detail-title")[0];
         foreach ($node->getChildren() as $child) {
-            return $child->text;
+            return htmlspecialchars_decode($child->text, ENT_QUOTES);
         }
     }
 
@@ -38,7 +38,7 @@ class DropListItemParser extends ResponseParser
         /** @var HtmlNode $node */
         $node = $this->dom->getElementsByClass("detail-desc")[0];
         foreach ($node->getChildren() as $child) {
-            return $child->text;
+            return htmlspecialchars_decode($child->text, ENT_QUOTES);
         }
     }
 
@@ -69,7 +69,7 @@ class DropListItemParser extends ResponseParser
             foreach ($node->getChildren() as $child) {
                 if ($child instanceof HtmlNode && $child->hasChildren()) {
                     foreach ($child->getChildren() as $textNode) {
-                        $colors[] = $textNode->text;
+                        $colors[] = htmlspecialchars_decode($textNode->text, ENT_QUOTES);
                     }
 
                 }
@@ -84,5 +84,29 @@ class DropListItemParser extends ResponseParser
         $imageNode = $this->dom->getElementsByTag('img')[0];
         $route = $imageNode->getTag()->getAttribute('src')['value'];
         return "https://supremecommunity.com" . $route;
+    }
+
+    protected function strip_tags_content($text, $tags = '', $invert = FALSE)
+    {
+
+        preg_match_all('/<(.+?)[\s]*\/?[\s]*>/si', trim($tags), $tags);
+        $tags = array_unique($tags[1]);
+
+        if(is_array($tags) AND count($tags) > 0)
+        {
+            if($invert == FALSE)
+            {
+                return preg_replace('@<(?!(?:'. implode('|', $tags) .')\b)(\w+)\b.*?>.*?</\1>@si', '', $text);
+            }
+            else
+            {
+                return preg_replace('@<('. implode('|', $tags) .')\b.*?>.*?</\1>@si', '', $text);
+            }
+        }
+        elseif($invert == FALSE)
+        {
+            return preg_replace('@<(\w+)\b.*?>.*?</\1>@si', '', $text);
+        }
+        return $text;
     }
 }
