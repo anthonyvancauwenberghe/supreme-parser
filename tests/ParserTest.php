@@ -3,13 +3,36 @@
 namespace Supreme\Parser\Tests;
 
 use PHPUnit\Framework\TestCase;
-use Supreme\Parser\SupremeCommunityDropListItemIdsParser;
-use Supreme\Parser\SupremeCommunityLatestDroplistParser;
+use Supreme\Parser\Http\SupremeCommunityHttpClient;
+use Supreme\Parser\SupremeCommunity;
 use Supreme\Parser\SupremeLookbookParser;
 
 
 class ParserTest extends TestCase
 {
+    public function testDroplistUrlParser(){
+        $http = new SupremeCommunityHttpClient();
+       $url = $http->getLatestDroplistUrl();
+       $this->assertStringContainsString("season",$url);
+    }
+
+    public function testGetLatestDroplistIds(){
+        $client = new SupremeCommunity(2, true);
+        $ids = $client->getItemIds();
+
+        $this->assertNotEmpty($ids);
+
+        foreach($ids as $id ){
+            $this->assertIsNumeric($id);
+        }
+    }
+
+    public function testGetLatestDroplistItems(){
+        $client = new SupremeCommunity(2, true);
+        $items = $client->getLatestDroplistItems();
+        $this->assertNotEmpty($items);
+    }
+
     public function testLookbook()
     {
         $this->markTestSkipped("");
@@ -18,21 +41,5 @@ class ParserTest extends TestCase
 
         $this->assertNotEmpty($products);
         $this->assertTrue(true);
-    }
-
-    public function testDroplist()
-    {
-        $parser = SupremeCommunityDropListItemIdsParser::getLatestDropWeekParser();
-        $products = $parser->parse();
-
-        $this->assertNotEmpty($products);
-    }
-
-    public function testParseLatestDroplist()
-    {
-        $parser = new SupremeCommunityLatestDroplistParser(1,true);
-        $items = $parser->parse();
-
-        $this->assertNotEmpty($items);
     }
 }

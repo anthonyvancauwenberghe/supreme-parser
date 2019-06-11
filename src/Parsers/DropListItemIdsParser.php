@@ -1,19 +1,12 @@
 <?php
 
-namespace Supreme\Parser;
+namespace Supreme\Parser\Parsers;
 
 use PHPHtmlParser\Dom\HtmlNode;
-use Supreme\Parser\Abstracts\HtmlParser;
-use Supreme\Parser\Resolvers\LatestDropDateResolver;
+use Supreme\Parser\Abstracts\ResponseParser;
 
-class SupremeCommunityDropListItemIdsParser extends HtmlParser
+class DropListItemIdsParser extends ResponseParser
 {
-    protected $baseUrl = "https://www.supremecommunity.com/season/spring-summer2019/droplist/";
-
-    public function __construct(string $date)
-    {
-        parent::__construct("$date/");
-    }
 
     public function parse(): array
     {
@@ -26,7 +19,7 @@ class SupremeCommunityDropListItemIdsParser extends HtmlParser
 
         foreach ($mainItemDivs as $mainItemDiv) {
             $card = $this->getCardCard2Div($mainItemDiv);
-            $itemIds[] = $this->extractItemId($card);
+            $itemIds[] = intval($this->extractItemId($card));
         }
         return $itemIds;
     }
@@ -63,11 +56,6 @@ class SupremeCommunityDropListItemIdsParser extends HtmlParser
                 return $child;
             }
         }
-    }
-
-    public static function getLatestDropWeekParser()
-    {
-        return new static((new LatestDropDateResolver())->resolve());
     }
 
 }

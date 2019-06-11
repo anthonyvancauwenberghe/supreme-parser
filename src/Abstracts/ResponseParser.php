@@ -2,21 +2,20 @@
 
 namespace Supreme\Parser\Abstracts;
 
-use GuzzleHttp\Client;
-use GuzzleHttp\Psr7\Response;
 use PHPHtmlParser\Dom;
+use Psr\Http\Message\ResponseInterface;
 
 abstract class ResponseParser
 {
     protected $dom;
 
-    public function __construct(Response $response)
+    public function __construct(ResponseInterface $response)
     {
         $this->dom = new Dom();
         $this->initDom($response);
     }
 
-    private function initDom(Response $response)
+    private function initDom(ResponseInterface $response)
     {
         $this->dom->loadStr($response->getBody());
     }
