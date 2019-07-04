@@ -8,6 +8,8 @@ use Supreme\Parser\Abstracts\ResponseParser;
 class DropListItemIdsParser extends ResponseParser
 {
 
+    protected $layersDeep = 0;
+
     public function parse(): array
     {
         $itemIds = [];
@@ -26,11 +28,27 @@ class DropListItemIdsParser extends ResponseParser
 
     protected function extractItemId(HtmlNode $cardcard2node)
     {
-        if ($cardcard2node instanceof HtmlNode && $cardcard2node->getTag()->hasAttribute('data-itemid')) {
+        if ($cardcard2node->getTag()->hasAttribute('data-itemid')) {
             return $cardcard2node->getTag()->getAttribute('data-itemid')['value'];
         }
 
-        throw new \RuntimeException("Extracting itemid from cardnode failed. Maybe website changed?");
+        foreach ($cardcard2node->getChildren() as $child) {
+            if ($child instanceof HtmlNode) {
+                $result = $this->extractItemId($child);
+
+                if ($result !== FALSE) {
+                    $this->layersDeep = 0;
+                    return $result;
+                }
+
+                $this->layersDeep++;
+                if ($this->layersDeep === 500) {
+                    $this->layersDeep = 0;
+                    throw new \RuntimeException("Extracting itemid from cardnode failed. Maybe website changed?");
+                }
+            }
+        }
+        return false;
     }
 
     protected function getMainItemsDiv()
