@@ -9,8 +9,8 @@ class DropListItemParser extends ResponseParser
 {
     public function parse(): array
     {
-        $title = $this->strip_tags_content($this->parseTitle());
-        $caption = $this->strip_tags_content($this->parseDescription());
+        $title = $this->parseTitle();
+        $caption = $this->parseDescription();
         $prices = $this->parsePrices();
         $colors = $this->parseColors();
         $image = $this->parseImage();
@@ -24,29 +24,55 @@ class DropListItemParser extends ResponseParser
         ];
     }
 
+    public function stringContains(string $needle, string $haystack)
+    {
+        return strpos($haystack, $needle) !== false;
+    }
+
+    public function recursiveWalkNode(?HtmlNode $node, string $classNameToFind, &$savedNode = null): ?HtmlNode
+    {
+        if ($savedNode !== null)
+            return $savedNode;
+
+        if ($node === null)
+            return null;
+
+        if ($node->getTag()->hasAttribute('class') && $this->stringContains($classNameToFind, $id = $node->getTag()->getAttribute('class')['value'])) {
+            $savedNode = $node;
+        }
+
+        if ($savedNode !== null)
+            return $savedNode;
+
+        foreach ($node->getChildren() as $child) {
+            if ($child instanceof HtmlNode)
+                $this->recursiveWalkNode($child, $classNameToFind, $savedNode);
+        }
+
+        return $savedNode;
+    }
+
+    public function recursiveWalkToString(string $className)
+    {
+        if (($node = $this->recursiveWalkNode($this->dom->root, $className)) === null)
+            throw new \RuntimeException("failed to parse text from droplist item");
+        return $this->strip_tags_content(htmlspecialchars_decode($node->text, ENT_QUOTES));
+    }
+
     protected function parseTitle()
     {
-        /** @var HtmlNode $node */
-        $node = $this->dom->getElementsByClass("detail-title")[0];
-        foreach ($node->getChildren() as $child) {
-            return htmlspecialchars_decode($child->text, ENT_QUOTES);
-        }
+        return $this->recursiveWalkToString("detail-title");
     }
 
     protected function parseDescription()
     {
-        /** @var HtmlNode $node */
-        $node = $this->dom->getElementsByClass("detail-desc")[0];
-        foreach ($node->getChildren() as $child) {
-            return htmlspecialchars_decode($child->text, ENT_QUOTES);
-        }
+        return $this->recursiveWalkToString("detail-desc");
     }
 
     protected function parsePrices()
     {
-        /** @var HtmlNode $node */
         $prices = [];
-        $node = $this->dom->getElementsByClass("itemdetails-centered")[0];
+        $node = $this->recursiveWalkNode($this->dom->root, "itemdetails-centered");
         if ($node !== null) {
             foreach ($node->getChildren() as $child) {
                 if ($child instanceof HtmlNode && $child->hasChildren()) {
@@ -56,6 +82,8 @@ class DropListItemParser extends ResponseParser
 
                 }
             }
+        } else {
+            throw new \RuntimeException("failed to parse prices from droplist item");
         }
         return $prices;
     }
@@ -64,7 +92,7 @@ class DropListItemParser extends ResponseParser
     {
         /** @var HtmlNode $node */
         $colors = [];
-        $node = $this->dom->getElementsByClass("itemdetails-centered")[1];
+        $node = $this->recursiveWalkNode($this->dom->root, "itemdetails-centered");
         if ($node !== null) {
             foreach ($node->getChildren() as $child) {
                 if ($child instanceof HtmlNode && $child->hasChildren()) {
@@ -74,6 +102,8 @@ class DropListItemParser extends ResponseParser
 
                 }
             }
+        } else {
+            throw new \RuntimeException("failed to parse colors from droplist item");
         }
         return $colors;
     }
@@ -81,7 +111,11 @@ class DropListItemParser extends ResponseParser
     protected function parseImage()
     {
         /** @var HtmlNode $imageNode */
-        $imageNode = $this->dom->getElementsByTag('img')[0];
+        $imageNode = $this->dom->getElementsByTag('img')[0] ?? null;
+
+        if ($imageNode === null)
+            throw new \RuntimeException("failed parsing image tag from droplist item");
+
         $route = $imageNode->getTag()->getAttribute('src')['value'];
         return "https://supremecommunity.com" . $route;
     }
@@ -92,19 +126,13 @@ class DropListItemParser extends ResponseParser
         preg_match_all('/<(.+?)[\s]*\/?[\s]*>/si', trim($tags), $tags);
         $tags = array_unique($tags[1]);
 
-        if(is_array($tags) AND count($tags) > 0)
-        {
-            if($invert == FALSE)
-            {
-                return preg_replace('@<(?!(?:'. implode('|', $tags) .')\b)(\w+)\b.*?>.*?</\1>@si', '', $text);
+        if (is_array($tags) AND count($tags) > 0) {
+            if ($invert == FALSE) {
+                return preg_replace('@<(?!(?:' . implode('|', $tags) . ')\b)(\w+)\b.*?>.*?</\1>@si', '', $text);
+            } else {
+                return preg_replace('@<(' . implode('|', $tags) . ')\b.*?>.*?</\1>@si', '', $text);
             }
-            else
-            {
-                return preg_replace('@<('. implode('|', $tags) .')\b.*?>.*?</\1>@si', '', $text);
-            }
-        }
-        elseif($invert == FALSE)
-        {
+        } elseif ($invert == FALSE) {
             return preg_replace('@<(\w+)\b.*?>.*?</\1>@si', '', $text);
         }
         return $text;

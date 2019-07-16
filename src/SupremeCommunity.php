@@ -7,7 +7,6 @@ use GuzzleHttp\Exception\ClientException;
 use Supreme\Parser\Http\SupremeCommunityHttpClient;
 use Supreme\Parser\Parsers\DropListItemIdsParser;
 use Supreme\Parser\Parsers\DropListItemParser;
-use Supreme\Parser\Parsers\DropListItemVoteParser;
 
 class SupremeCommunity
 {
@@ -24,30 +23,16 @@ class SupremeCommunity
         $this->supremeHttp = new SupremeCommunityHttpClient();
     }
 
-    public function getItemIds()
+    public function getItemIds(?string $season = null, ?string $date = null)
     {
-        $droplistDom = $this->supremeHttp->getLatestDroplistPage();
-        return (new DropListItemIdsParser($droplistDom))->parse();
+        $dom = (($season === null || $date === null) ? $this->supremeHttp->getLatestDroplistPage() : $this->supremeHttp->getDropListPageByDate($season, $date));
+        return (new DropListItemIdsParser($dom))->parse();
     }
 
-    protected function parseVotes($id)
-    {
-        $voteParser = new DropListItemVoteParser($this->supremeHttp->getItemVote($id));
-        try {
-            $votes = $voteParser->parse();
-        } catch (\Throwable $e) {
-            $votes = [
-                "upvotes" => 0,
-                "downvotes" => 0,
-            ];
-        }
-        return $votes;
-    }
-
-    public function getLatestDroplistItems()
+    public function getDropListItems(?string $season = null, ?string $date = null)
     {
         $items = [];
-        foreach ($this->getItemIds() as $id) {
+        foreach ($this->getItemIds($season, $date) as $id) {
             try {
                 $itemParser = new DropListItemParser($this->supremeHttp->getItem($id));
 
@@ -58,7 +43,7 @@ class SupremeCommunity
                 $items[] = array_merge($item, $votes);
 
                 if ($this->debug)
-                    echo "Successfully parsed: $id - ".$item['title']." \n";
+                    echo "Successfully parsed: $id - " . $item['title'] . " \n";
 
                 sleep($this->delay);
             } catch (ClientException $exception) {

@@ -36,9 +36,14 @@ class SupremeCommunityHttpClient
         return $parser->parse();
     }
 
-    protected function getLatestSeasonDropListPage()
+    public function getLatestSeasonDropListPage()
     {
         return $this->client->get('/season/latest/droplists/');
+    }
+
+    public function getDropListPageByDate(string $season = 'spring-summer2019', string $date = '2019-07-05')
+    {
+        return $this->client->get("season/$season/droplist/$date/");
     }
 
     public function getLatestDroplistPage()

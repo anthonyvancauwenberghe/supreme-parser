@@ -29,7 +29,13 @@ class ParserTest extends TestCase
 
     public function testGetLatestDroplistItems(){
         $client = new SupremeCommunity(2, true);
-        $items = $client->getLatestDroplistItems();
+        $items = $client->getDropListItems();
+        $this->assertNotEmpty($items);
+    }
+
+    public function testGetItemsBySeasonDate(){
+        $client = new SupremeCommunity(2, true);
+        $items = $client->getDropListItems('spring-summer2019','2019-07-05');
         $this->assertNotEmpty($items);
     }
 
