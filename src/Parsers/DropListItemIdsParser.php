@@ -4,24 +4,19 @@ namespace Supreme\Parser\Parsers;
 
 use PHPHtmlParser\Dom\HtmlNode;
 use Supreme\Parser\Abstracts\ResponseParser;
+use Supreme\Parser\Traversers\RecursiveNodeWalker;
 
 class DropListItemIdsParser extends ResponseParser
 {
     public function parse(): array
     {
-          return array_unique($this->recursiveWalk($this->dom->root));
-    }
+        $traverser = new RecursiveNodeWalker($this->dom->root, "data-itemid", null);
 
-    public function recursiveWalk(HtmlNode $node, &$itemids = [],$counter = 0)
-    {
-        if ($node->getTag()->hasAttribute('data-itemid') && is_numeric($id = $node->getTag()->getAttribute('data-itemid')['value'])) {
-            $itemids[] = (int) $id;
-        }
-        foreach ($node->getChildren() as $child) {
-            if ($child instanceof HtmlNode)
-                $this->recursiveWalk($child, $itemids,$counter);
-        }
-        return $itemids;
+        return array_unique($traverser->traverse(function (HtmlNode $node) {
+            if (is_numeric($id = $node->getTag()->getAttribute('data-itemid')['value']))
+                return (int) $id;
+            return ;
+        }));
     }
 
 }

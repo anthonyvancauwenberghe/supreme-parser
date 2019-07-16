@@ -4,6 +4,7 @@ namespace Supreme\Parser\Parsers;
 
 use PHPHtmlParser\Dom\HtmlNode;
 use Supreme\Parser\Abstracts\ResponseParser;
+use Supreme\Parser\Traversers\RecursiveNodeWalker;
 
 class DropListItemParser extends ResponseParser
 {
@@ -54,9 +55,12 @@ class DropListItemParser extends ResponseParser
 
     public function recursiveWalkToString(string $className)
     {
-        if (($node = $this->recursiveWalkNode($this->dom->root, $className)) === null)
-            throw new \RuntimeException("failed to parse text from droplist item");
-        return $this->strip_tags_content(htmlspecialchars_decode($node->text, ENT_QUOTES));
+        $traverser = new RecursiveNodeWalker($this->dom->root,'class','detail-title');
+        return $traverser->traverseTillFirst(function (?HtmlNode $node){
+            if ($node === null)
+                throw new \RuntimeException("failed to parse text from droplist item");
+            $this->strip_tags_content(htmlspecialchars_decode($node->text, ENT_QUOTES));
+        });
     }
 
     protected function parseTitle()

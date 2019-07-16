@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Supreme\Parser\Http\SupremeCommunityHttpClient;
 use Supreme\Parser\SupremeCommunity;
 use Supreme\Parser\SupremeLookbookParser;
+use Supreme\Parser\SupremeNewYork;
 
 
 class ParserTest extends TestCase
@@ -47,5 +48,12 @@ class ParserTest extends TestCase
 
         $this->assertNotEmpty($products);
         $this->assertTrue(true);
+    }
+
+    public function testParseNews(){
+        $supreme = new SupremeNewYork();
+        $news = $supreme->parseNews();
+
+        $this->assertNotEmpty($news);
     }
 }
