@@ -75,41 +75,33 @@ class DropListItemParser extends ResponseParser
 
     protected function parsePrices()
     {
-        $prices = [];
-        $node = $this->recursiveWalkNode($this->dom->root, "itemdetails-centered");
-        if ($node !== null) {
-            foreach ($node->getChildren() as $child) {
-                if ($child instanceof HtmlNode && $child->hasChildren()) {
-                    foreach ($child->getChildren() as $textNode) {
-                        $prices[] = $textNode->text;
-                    }
+        $traverser = new RecursiveNodeWalker($this->dom->root, 'class', 'price-label', false);
+        return $traverser->traverse(function (?HtmlNode $node) {
+            $possibleColor = $node->innerHtml() ?? $node->text();
+            if ($node === null)
+                throw new \RuntimeException("failed to parse prices from droplist item");
 
-                }
+            if (in_array($possibleColor[0], ['$', '£', '€', '¥'])) {
+                return ;
             }
-        } else {
-            throw new \RuntimeException("failed to parse prices from droplist item");
-        }
-        return $prices;
+            return ltrim($this->strip_tags_content(htmlspecialchars_decode($node->innerHtml() ?? $node->text(), ENT_QUOTES)));
+        });
     }
 
     protected function parseColors()
     {
-        /** @var HtmlNode $node */
-        $colors = [];
-        $node = $this->recursiveWalkNode($this->dom->root, "itemdetails-centered");
-        if ($node !== null) {
-            foreach ($node->getChildren() as $child) {
-                if ($child instanceof HtmlNode && $child->hasChildren()) {
-                    foreach ($child->getChildren() as $textNode) {
-                        $colors[] = htmlspecialchars_decode($textNode->text, ENT_QUOTES);
-                    }
 
-                }
+        $traverser = new RecursiveNodeWalker($this->dom->root, 'class', 'price-label', false);
+        return $traverser->traverse(function (?HtmlNode $node) {
+            $possibleColor = $node->innerHtml() ?? $node->text();
+            if ($node === null)
+                throw new \RuntimeException("failed to parse prices from droplist item");
+
+            if (in_array($possibleColor[0], ['$', '£', '€', '¥'])) {
+                return ;
             }
-        } else {
-            throw new \RuntimeException("failed to parse colors from droplist item");
-        }
-        return $colors;
+            return ltrim($this->strip_tags_content(htmlspecialchars_decode($node->innerHtml() ?? $node->text(), ENT_QUOTES)));
+        });
     }
 
     protected function parseImage()
