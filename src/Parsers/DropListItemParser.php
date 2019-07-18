@@ -30,29 +30,6 @@ class DropListItemParser extends ResponseParser
         return strpos($haystack, $needle) !== false;
     }
 
-    public function recursiveWalkNode(?HtmlNode $node, string $classNameToFind, &$savedNode = null): ?HtmlNode
-    {
-        if ($savedNode !== null)
-            return $savedNode;
-
-        if ($node === null)
-            return null;
-
-        if ($node->getTag()->hasAttribute('class') && $this->stringContains($classNameToFind, $id = $node->getTag()->getAttribute('class')['value'])) {
-            $savedNode = $node;
-        }
-
-        if ($savedNode !== null)
-            return $savedNode;
-
-        foreach ($node->getChildren() as $child) {
-            if ($child instanceof HtmlNode)
-                $this->recursiveWalkNode($child, $classNameToFind, $savedNode);
-        }
-
-        return $savedNode;
-    }
-
     public function recursiveWalkToString(string $className)
     {
         $traverser = new RecursiveNodeWalker($this->dom->root, 'class', $className);
