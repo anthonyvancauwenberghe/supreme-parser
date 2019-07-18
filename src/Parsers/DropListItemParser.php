@@ -55,11 +55,11 @@ class DropListItemParser extends ResponseParser
 
     public function recursiveWalkToString(string $className)
     {
-        $traverser = new RecursiveNodeWalker($this->dom->root,'class','detail-title');
-        return $traverser->traverseTillFirst(function (?HtmlNode $node){
+        $traverser = new RecursiveNodeWalker($this->dom->root, 'class', $className);
+        return $traverser->traverseTillFirst(function (?HtmlNode $node) {
             if ($node === null)
                 throw new \RuntimeException("failed to parse text from droplist item");
-            $this->strip_tags_content(htmlspecialchars_decode($node->text, ENT_QUOTES));
+            return $this->strip_tags_content(htmlspecialchars_decode($node->innerHtml() ?? $node->text(), ENT_QUOTES));
         });
     }
 
