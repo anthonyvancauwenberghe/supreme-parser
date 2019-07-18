@@ -54,30 +54,33 @@ class DropListItemParser extends ResponseParser
     {
         $traverser = new RecursiveNodeWalker($this->dom->root, 'class', 'price-label', false);
         return $traverser->traverse(function (?HtmlNode $node) {
-            $possibleColor = $node->innerHtml() ?? $node->text();
+
             if ($node === null)
                 throw new \RuntimeException("failed to parse prices from droplist item");
 
-            if (in_array($possibleColor[0], ['$', '£', '€', '¥'])) {
-                return ;
+            $price = ($node->innerHtml() ?? $node->text());
+
+            $encoded = ltrim(htmlentities($price));
+            if(in_array($start = $encoded[0],['$','&'])){
+                return ltrim($this->strip_tags_content(htmlspecialchars_decode($price, ENT_QUOTES)));
             }
-            return ltrim($this->strip_tags_content(htmlspecialchars_decode($node->innerHtml() ?? $node->text(), ENT_QUOTES)));
+
         });
     }
 
     protected function parseColors()
     {
-
         $traverser = new RecursiveNodeWalker($this->dom->root, 'class', 'price-label', false);
         return $traverser->traverse(function (?HtmlNode $node) {
-            $possibleColor = $node->innerHtml() ?? $node->text();
             if ($node === null)
                 throw new \RuntimeException("failed to parse prices from droplist item");
 
-            if (in_array($possibleColor[0], ['$', '£', '€', '¥'])) {
-                return ;
+            $color = ($node->innerHtml() ?? $node->text());
+
+            $encoded = ltrim(htmlentities($color));
+            if(!in_array($start = $encoded[0],['$','&'])){
+                return ltrim($this->strip_tags_content(htmlspecialchars_decode($color, ENT_QUOTES)));
             }
-            return ltrim($this->strip_tags_content(htmlspecialchars_decode($node->innerHtml() ?? $node->text(), ENT_QUOTES)));
         });
     }
 
