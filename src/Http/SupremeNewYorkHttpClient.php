@@ -73,13 +73,13 @@ class SupremeNewYorkHttpClient
         $requests = [];
 
         foreach ($ids as $id) {
-            $requests[] = new Request("GET", $this->baseUri . "/shop/$id.json");
+            $requests[$id] = new Request("GET", $this->baseUri . "/shop/$id.json");
         }
 
             $pool = new Pool($this->client, $requests, [
                 'concurrency' => $concurrency,
-                'fulfilled' => function (Response $response, $index) use (&$items) {
-                    $items[] = $response;
+                'fulfilled' => function (Response $response, $id) use (&$items) {
+                    $items[$id] = $response;
                 },
                 'rejected' => function (RequestException $reason, $index) {
                     if ($this->debug) {
