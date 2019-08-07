@@ -27,16 +27,23 @@ class SupremeNewsParser extends ResponseParser
 
     public function extractImages(HtmlNode $node)
     {
-        $traverser = new RecursiveNodeWalker($this->dom->root, 'data-image-urls', null);
-        return $traverser->traverseTillFirst(function (HtmlNode $node) {
-            $images = $node->getTag()->getAttribute('data-image-urls')['value'];
-            $images = str_replace('//', 'https://', $images);
-            $images = str_replace('[', '', $images);
-            $images = str_replace(']', '', $images);
-            $images = htmlspecialchars_decode($images, ENT_QUOTES);
-            $images = str_replace('"', '', $images);
-            return explode(',', $images);
-        });
+        $traverser = new RecursiveNodeWalker($node, null, null);
+
+        $nodes = $traverser->traverse();
+
+        foreach ($nodes as $node) {
+            if ($node->getTag()->hasAttribute('data-image-urls')) {
+                $images = $node->getTag()->getAttribute('data-image-urls')['value'];
+                $images = str_replace('//', 'https://', $images);
+                $images = str_replace('[', '', $images);
+                $images = str_replace(']', '', $images);
+                $images = htmlspecialchars_decode($images, ENT_QUOTES);
+                $images = str_replace('"', '', $images);
+                return explode(',', $images);
+            }
+        }
+
+            return [];
     }
 
     public function extractTitle(HtmlNode $node)
