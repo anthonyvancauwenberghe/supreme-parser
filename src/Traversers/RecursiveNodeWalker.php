@@ -39,7 +39,7 @@ class RecursiveNodeWalker
      * @param $match
      * @param $strict
      */
-    public function __construct(HtmlNode $rootNode, ?string $attribute, ?string $match, bool $strict = false)
+    public function __construct(HtmlNode $rootNode, ?string $attribute = null, ?string $match = null, bool $strict = false)
     {
         $this->rootNode = $rootNode;
         $this->attribute = $attribute;

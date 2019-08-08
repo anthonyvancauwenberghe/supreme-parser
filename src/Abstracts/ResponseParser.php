@@ -23,4 +23,15 @@ abstract class ResponseParser
     }
 
     public abstract function parse();
+
+    public function filterHtmlNodesOnly(array $nodes)
+    {
+        $output = [];
+
+        foreach ($nodes as $node) {
+            if ($node instanceof Dom\HtmlNode)
+                $output[] = $node;
+        }
+        return $output;
+    }
 }

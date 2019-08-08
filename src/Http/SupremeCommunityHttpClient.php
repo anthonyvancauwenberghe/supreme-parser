@@ -58,4 +58,12 @@ class SupremeCommunityHttpClient
     public function getItemVote($id){
         return $this->client->get("/votes/items/$id/box/");
     }
+
+    public function getLatestSeasonDropTimes(string $region) {
+        return $this->client->get("/season/latest/times/$region/");
+    }
+
+    public function get(string $route) {
+        return $this->client->get($route);
+    }
 }
