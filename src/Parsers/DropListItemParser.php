@@ -3,11 +3,24 @@
 namespace Supreme\Parser\Parsers;
 
 use PHPHtmlParser\Dom\HtmlNode;
+use Psr\Http\Message\ResponseInterface;
 use Supreme\Parser\Abstracts\ResponseParser;
 use Supreme\Parser\Traversers\RecursiveNodeWalker;
 
 class DropListItemParser extends ResponseParser
 {
+    protected $category;
+
+    /**
+     * DropListItemParser constructor.
+     * @param $category
+     */
+    public function __construct(ResponseInterface $response, string $category = 'Unknown')
+    {
+        parent::__construct($response);
+        $this->category = $category;
+    }
+
     public function parse(): array
     {
         $title = $this->parseTitle();
@@ -18,6 +31,7 @@ class DropListItemParser extends ResponseParser
 
         return [
             "title" => $title,
+            "category" => $this->category,
             "caption" => $caption,
             "prices" => $prices,
             "colors" => $colors,
@@ -61,7 +75,7 @@ class DropListItemParser extends ResponseParser
             $price = ($node->innerHtml() ?? $node->text());
 
             $encoded = ltrim(htmlentities($price));
-            if(in_array($start = $encoded[0],['$','&'])){
+            if (in_array($start = $encoded[0], ['$', '&'])) {
                 return ltrim($this->strip_tags_content(htmlspecialchars_decode($price, ENT_QUOTES)));
             }
 
@@ -78,10 +92,15 @@ class DropListItemParser extends ResponseParser
             $color = ($node->innerHtml() ?? $node->text());
 
             $encoded = ltrim(htmlentities($color));
-            if(!in_array($start = $encoded[0],['$','&'])){
+            if (!in_array($start = $encoded[0], ['$', '&'])) {
                 return ltrim($this->strip_tags_content(htmlspecialchars_decode($color, ENT_QUOTES)));
             }
         });
+    }
+
+    protected function parseCategory()
+    {
+
     }
 
     protected function parseImage()

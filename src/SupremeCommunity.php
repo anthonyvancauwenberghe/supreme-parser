@@ -32,9 +32,9 @@ class SupremeCommunity
     public function getDropListItems(?string $season = null, ?string $date = null)
     {
         $items = [];
-        foreach ($this->getItemIds($season, $date) as $id) {
+        foreach ($this->getItemIds($season, $date) as $id => $category) {
             try {
-                $itemParser = new DropListItemParser($this->supremeHttp->getItem($id));
+                $itemParser = new DropListItemParser($this->supremeHttp->getItem($id),$category);
 
                 $item = $itemParser->parse();
 

@@ -23,12 +23,14 @@ class ParserTest extends TestCase
     public function testGetLatestDroplistIds()
     {
         $client = new SupremeCommunity(2, true);
-        $ids = $client->getItemIds();
+        $ids = $client->getItemIds('spring-summer2019','2019-07-05');
 
         $this->assertNotEmpty($ids);
 
-        foreach ($ids as $id) {
+        foreach ($ids as $id => $category) {
             $this->assertIsNumeric($id);
+            $this->assertIsString($category);
+            $this->assertNotEquals('Unknown',$category);
         }
     }
 
