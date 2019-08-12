@@ -5,6 +5,8 @@ namespace Supreme\Parser\Tests;
 use PHPUnit\Framework\TestCase;
 use Supreme\Parser\Http\SupremeCommunityHttpClient;
 use Supreme\Parser\Http\SupremeNewYorkHttpClient;
+use Supreme\Parser\Parsers\DropListItemParser;
+use Supreme\Parser\Parsers\SeasonListItemIdsParser;
 use Supreme\Parser\SupremeCommunity;
 use Supreme\Parser\SupremeLookbookParser;
 use Supreme\Parser\SupremeNewYork;
@@ -23,15 +25,24 @@ class ParserTest extends TestCase
     public function testGetLatestDroplistIds()
     {
         $client = new SupremeCommunity(2, true);
-        $ids = $client->getItemIds('spring-summer2019','2019-07-05');
+        $ids = $client->getItemIds('spring-summer2019', '2019-07-05');
 
         $this->assertNotEmpty($ids);
 
         foreach ($ids as $id => $category) {
             $this->assertIsNumeric($id);
             $this->assertIsString($category);
-            $this->assertNotEquals('Unknown',$category);
+            $this->assertNotEquals('Unknown', $category);
         }
+    }
+
+    public function testParseSupComItem()
+    {
+        $http = new SupremeCommunityHttpClient();
+        $response = $http->getItem('489');
+        $parser = new DropListItemParser($response);
+        $item = $parser->parse();
+        $this->assertTrue(true);
     }
 
     public function testGetLatestDroplistItems()
@@ -91,5 +102,13 @@ class ParserTest extends TestCase
         echo $stopwatch->getEvent('parse')->getDuration();
 
         $this->assertTrue(true);
+    }
+
+    public function testSeasonListIdsParser()
+    {
+        $client = new SupremeCommunityHttpClient();
+        $response = $client->getSeasonItemsOverview('spring-summer2017');
+        $parser = new SeasonListItemIdsParser($response);
+        $ids = $parser->parse();
     }
 }

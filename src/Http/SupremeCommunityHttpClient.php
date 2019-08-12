@@ -36,6 +36,10 @@ class SupremeCommunityHttpClient
         return $parser->parse();
     }
 
+    public function getSeasonItemsOverview(string $season){
+        return $this->client->get("/season/$season/overview/");
+    }
+
     public function getLatestSeasonDropListPage()
     {
         return $this->client->get('/season/latest/droplists/');

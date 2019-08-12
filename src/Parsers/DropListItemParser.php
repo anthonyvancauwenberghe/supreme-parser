@@ -6,6 +6,7 @@ use PHPHtmlParser\Dom\HtmlNode;
 use Psr\Http\Message\ResponseInterface;
 use Supreme\Parser\Abstracts\ResponseParser;
 use Supreme\Parser\Traversers\RecursiveNodeWalker;
+use Supreme\Parser\Traversers\RecursiveNodeWalkerTextFinder;
 
 class DropListItemParser extends ResponseParser
 {
@@ -28,6 +29,7 @@ class DropListItemParser extends ResponseParser
         $prices = $this->parsePrices();
         $colors = $this->parseColors();
         $image = $this->parseImage();
+        $release = $this->parseRelease();
 
         return [
             "title" => $title,
@@ -35,14 +37,11 @@ class DropListItemParser extends ResponseParser
             "caption" => $caption,
             "prices" => $prices,
             "colors" => $colors,
-            "image" => $image
+            "image" => $image,
+            "release" => $release
         ];
     }
 
-    public function stringContains(string $needle, string $haystack)
-    {
-        return strpos($haystack, $needle) !== false;
-    }
 
     public function recursiveWalkToString(string $className)
     {
@@ -62,6 +61,14 @@ class DropListItemParser extends ResponseParser
     protected function parseDescription()
     {
         return $this->recursiveWalkToString("detail-desc");
+    }
+
+    protected function parseRelease() :?string {
+        $traverser = new RecursiveNodeWalker($this->dom->root, 'class', 'details-release-small');
+        $node = $traverser->traverseTillFirst();
+        $finder = new RecursiveNodeWalkerTextFinder($node);
+        $texts = $finder->traverse();
+        return $texts[1] ?? null;
     }
 
     protected function parsePrices()
