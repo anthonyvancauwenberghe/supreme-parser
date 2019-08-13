@@ -5,21 +5,20 @@ namespace Supreme\Parser\Parsers;
 use PHPHtmlParser\Dom\HtmlNode;
 use Psr\Http\Message\ResponseInterface;
 use Supreme\Parser\Abstracts\ResponseParser;
+use Supreme\Parser\Http\SupremeCommunityHttpClient;
 use Supreme\Parser\Traversers\RecursiveNodeWalker;
 use Supreme\Parser\Traversers\RecursiveNodeWalkerTextFinder;
 
 class DropListItemParser extends ResponseParser
 {
     protected $category;
+    protected $id;
 
-    /**
-     * DropListItemParser constructor.
-     * @param $category
-     */
-    public function __construct(ResponseInterface $response, string $category = 'Unknown')
+    public function __construct(ResponseInterface $response, string $category = 'Unknown', ?int $id = null)
     {
         parent::__construct($response);
         $this->category = $category;
+        $this->id = $id;
     }
 
     public function parse(): array
@@ -32,6 +31,7 @@ class DropListItemParser extends ResponseParser
         $release = $this->parseRelease();
 
         return [
+            "id" => $this->id,
             "title" => $title,
             "category" => $this->category,
             "caption" => $caption,
@@ -41,7 +41,6 @@ class DropListItemParser extends ResponseParser
             "release" => $release
         ];
     }
-
 
     public function recursiveWalkToString(string $className)
     {
@@ -63,7 +62,8 @@ class DropListItemParser extends ResponseParser
         return $this->recursiveWalkToString("detail-desc");
     }
 
-    protected function parseRelease() :?string {
+    protected function parseRelease(): ?string
+    {
         $traverser = new RecursiveNodeWalker($this->dom->root, 'class', 'details-release-small');
         $node = $traverser->traverseTillFirst();
         $finder = new RecursiveNodeWalkerTextFinder($node);

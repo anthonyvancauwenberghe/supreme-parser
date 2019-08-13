@@ -2,10 +2,13 @@
 
 namespace Supreme\Parser\Tests;
 
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 use PHPUnit\Framework\TestCase;
 use Supreme\Parser\Http\SupremeCommunityHttpClient;
 use Supreme\Parser\Http\SupremeNewYorkHttpClient;
 use Supreme\Parser\Parsers\DropListItemParser;
+use Supreme\Parser\Parsers\SCSeasonListPicker;
 use Supreme\Parser\Parsers\SeasonListItemIdsParser;
 use Supreme\Parser\SupremeCommunity;
 use Supreme\Parser\SupremeLookbookParser;
@@ -111,4 +114,25 @@ class ParserTest extends TestCase
         $parser = new SeasonListItemIdsParser($response);
         $ids = $parser->parse();
     }
+
+    public function testParseItemsSeasonList()
+    {
+        $client = new SupremeCommunityHttpClient();
+        $response = $client->getSeasonItemsOverview('spring-summer2019');
+
+        $parser = new SCSeasonListPicker($response);
+        $seasons = $parser->parse();
+        $seasons = collect($seasons)->flatten()->toArray();
+        $this->assertContains('spring/summer 2019', $seasons);
+    }
+
+    public function testParseAllItems()
+    {
+        $sc = new SupremeCommunity();
+        $items = $sc->getAllItems();
+        $data = json_encode($items, true);
+        file_put_contents('sc_items.json', json_encode($data, \JSON_PRETTY_PRINT | \JSON_UNESCAPED_SLASHES));
+        $this->assertTrue(true);
+    }
+
 }

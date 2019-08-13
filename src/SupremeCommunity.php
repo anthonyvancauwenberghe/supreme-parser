@@ -7,6 +7,8 @@ use GuzzleHttp\Exception\ClientException;
 use Supreme\Parser\Http\SupremeCommunityHttpClient;
 use Supreme\Parser\Parsers\DropListItemIdsParser;
 use Supreme\Parser\Parsers\DropListItemParser;
+use Supreme\Parser\Parsers\SCSeasonListPicker;
+use Supreme\Parser\Parsers\SeasonListItemIdsParser;
 
 class SupremeCommunity
 {
@@ -34,7 +36,7 @@ class SupremeCommunity
         $items = [];
         foreach ($this->getItemIds($season, $date) as $id => $category) {
             try {
-                $itemParser = new DropListItemParser($this->supremeHttp->getItem($id),$category);
+                $itemParser = new DropListItemParser($this->supremeHttp->getItem($id), $category, $id);
 
                 $item = $itemParser->parse();
 
@@ -56,6 +58,33 @@ class SupremeCommunity
             }
 
         }
+        return $items;
+    }
+
+    public function getAllItems()
+    {
+        $response = $this->supremeHttp->getSeasonItemsOverview('spring-summer2019');
+        $seasons = (new SCSeasonListPicker($response))->parse();
+
+        $ids = collect($seasons)->take(1)->mapWithKeys(function (array $season) {
+            sleep(random_int(1000, 3000) / 1000);
+            $response = $this->supremeHttp->get($season['route']);
+            $ids = (new SeasonListItemIdsParser($response))->parse();
+            return [$season['name'] => $ids];
+        });
+
+        $items = $ids->mapWithKeys(function (array $categoryIds, string $season) {
+            $seasonItems = collect($categoryIds)->mapWithKeys(function (array $ids, string $category) {
+                $items = collect($ids)->map(function ($id) {
+                    sleep(random_int(1000, 3000) / 1000);
+                    return $this->supremeHttp->getItem($id);
+                })->toArray();
+                return [$category => $items];
+            })->toArray();
+            return [$season => $seasonItems];
+        })->toArray();
+
+
         return $items;
     }
 }

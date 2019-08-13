@@ -6,7 +6,7 @@ use PHPHtmlParser\Dom\HtmlNode;
 use Supreme\Parser\Abstracts\ResponseParser;
 use Supreme\Parser\Traversers\RecursiveNodeWalker;
 
-class DropTimesSeasonListParser extends ResponseParser
+class SCSeasonListPicker extends ResponseParser
 {
     public function parse(): array
     {

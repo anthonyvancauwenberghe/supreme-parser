@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Storage;
 use Supreme\Parser\Http\SupremeCommunityHttpClient;
 use Supreme\Parser\Models\SupremeCommunity\SCDropTimesSeason;
 use Supreme\Parser\Models\SupremeCommunity\SCDropTimesWeek;
-use Supreme\Parser\Parsers\DropTimesSeasonListParser;
+use Supreme\Parser\Parsers\SCSeasonListPicker;
 
 class SCDropTimesManager
 {
@@ -30,7 +30,7 @@ class SCDropTimesManager
     public function seasons()
     {
         $response = $this->client->getLatestSeasonDropTimes($this->region);
-        $parser = new DropTimesSeasonListParser($response);
+        $parser = new SCSeasonListPicker($response);
         return collect($parser->parse())->map(function (array $season) {
             return new SCDropTimesSeason($season['name'], $season['route']);
         });
