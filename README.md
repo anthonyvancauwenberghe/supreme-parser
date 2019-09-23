@@ -8,7 +8,3 @@ $products = $parser->parse();
 ```
 
 The parsing will take a while so the parsing should be processed Async.
-
-## Credits
-
-- [Anthony Vancauwenberghe](https://github.com/larapie)
