@@ -2,8 +2,6 @@
 
 namespace Supreme\Parser\Tests;
 
-use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Storage;
 use PHPUnit\Framework\TestCase;
 use Supreme\Parser\Http\SupremeCommunityHttpClient;
 use Supreme\Parser\Http\SupremeNewYorkHttpClient;
@@ -42,7 +40,7 @@ class ParserTest extends TestCase
     public function testParseSupComItem()
     {
         $http = new SupremeCommunityHttpClient();
-        $response = $http->getItem('489');
+        $response = $http->getItem('5623');
         $parser = new DropListItemParser($response);
         $item = $parser->parse();
         $this->assertTrue(true);
@@ -64,10 +62,11 @@ class ParserTest extends TestCase
 
     public function testLookbook()
     {
-        $this->markTestSkipped("");
-        $parser = new SupremeLookbookParser("/previews/springsummer2019/all", true);
+       // $this->markTestSkipped("");
+        $parser = new SupremeLookbookParser("/previews/fallwinter2019/all", true);
         $products = $parser->parse();
 
+        file_put_contents('lookbookFW2019.json', json_encode($products, \JSON_PRETTY_PRINT | \JSON_UNESCAPED_SLASHES));
         $this->assertNotEmpty($products);
         $this->assertTrue(true);
     }
@@ -130,8 +129,18 @@ class ParserTest extends TestCase
     {
         $sc = new SupremeCommunity();
         $items = $sc->getAllItems();
-        $data = json_encode($items, true);
-        file_put_contents('sc_items.json', json_encode($data, \JSON_PRETTY_PRINT | \JSON_UNESCAPED_SLASHES));
+        file_put_contents('sc_items.json', json_encode($items, \JSON_PRETTY_PRINT | \JSON_UNESCAPED_SLASHES));
+        $this->assertTrue(true);
+    }
+
+    public function testSaveArrayToFile(){
+        $items = [
+            [
+                "name" => 'test',
+                "value" => 5
+            ]
+        ];
+        file_put_contents('test.json', json_encode($items, \JSON_PRETTY_PRINT | \JSON_UNESCAPED_SLASHES));
         $this->assertTrue(true);
     }
 

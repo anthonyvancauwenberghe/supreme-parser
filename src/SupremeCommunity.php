@@ -66,21 +66,25 @@ class SupremeCommunity
         $response = $this->supremeHttp->getSeasonItemsOverview('spring-summer2019');
         $seasons = (new SCSeasonListPicker($response))->parse();
 
-        $ids = collect($seasons)->take(1)->mapWithKeys(function (array $season) {
-            sleep(random_int(1000, 3000) / 1000);
+        $ids = collect($seasons)->mapWithKeys(function (array $season) {
+            sleep(random_int(500, 1000) / 1000);
             $response = $this->supremeHttp->get($season['route']);
             $ids = (new SeasonListItemIdsParser($response))->parse();
             return [$season['name'] => $ids];
         });
-
+        sleep(5);
         $items = $ids->mapWithKeys(function (array $categoryIds, string $season) {
             $seasonItems = collect($categoryIds)->mapWithKeys(function (array $ids, string $category) {
-                $items = collect($ids)->map(function ($id) {
-                    sleep(random_int(1000, 3000) / 1000);
-                    return $this->supremeHttp->getItem($id);
+                $items = collect($ids)->map(function ($id) use ($category) {
+                    sleep(random_int(1000, 2000) / 1000);
+                    $response = $this->supremeHttp->getItem($id);
+                    $item = (new DropListItemParser($response, $category, $id))->parse();
+                    return $item;
                 })->toArray();
+                sleep(5);
                 return [$category => $items];
             })->toArray();
+            sleep(10);
             return [$season => $seasonItems];
         })->toArray();
 

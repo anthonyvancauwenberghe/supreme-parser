@@ -38,6 +38,7 @@ class DropListItemParser extends ResponseParser
             "prices" => $prices,
             "colors" => $colors,
             "image" => $image,
+            "images" => $this->parseImages(),
             "release" => $release
         ];
     }
@@ -105,9 +106,18 @@ class DropListItemParser extends ResponseParser
         });
     }
 
-    protected function parseCategory()
+    protected function parseImages()
     {
-
+        $traverser = new RecursiveNodeWalker($this->dom->root, 'data-image-hq');
+        $nodes = $traverser->traverse();
+        return collect($nodes)
+            ->map(function (HtmlNode $node) {
+                return $node->getTag()->getAttribute('data-image-hq')['value'];
+            })
+            ->map(function (string $route) {
+                return 'https://supremecommunity.com' . $route;
+            })
+            ->toArray();
     }
 
     protected function parseImage()
