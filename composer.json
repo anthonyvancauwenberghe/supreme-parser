@@ -19,7 +19,7 @@
         "php": "^7.2",
         "ext-json": "*",
         "guzzlehttp/guzzle": "^6.3",
-        "illuminate/support": "^5.8",
+        "illuminate/support": "^5.8|~6.0",
         "nesbot/carbon": "^2.17",
         "paquettg/php-html-parser": "^2.0"
     },
