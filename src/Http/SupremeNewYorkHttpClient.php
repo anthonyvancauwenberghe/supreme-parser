@@ -46,7 +46,6 @@ class SupremeNewYorkHttpClient
         $this->debug = $debug;
     }
 
-
     public function getNews(int $page)
     {
         return $this->client->get($this->baseUri . "/news/page/" . $page);
@@ -55,6 +54,16 @@ class SupremeNewYorkHttpClient
     public function getStock()
     {
         return $this->client->get($this->baseUri . "/shop.json");
+    }
+
+    public function getPreview(string $season)
+    {
+        return $this->client->get($this->baseUri . "/previews/$season/all");
+    }
+
+    public function getPreviewItem(string $route)
+    {
+        return $this->client->get($this->baseUri . $route);
     }
 
     public function getMobileStock()
@@ -76,28 +85,30 @@ class SupremeNewYorkHttpClient
             $requests[$id] = new Request("GET", $this->baseUri . "/shop/$id.json");
         }
 
-            $pool = new Pool($this->client, $requests, [
-                'concurrency' => $concurrency,
-                'fulfilled' => function (Response $response, $id) use (&$items) {
-                    $items[$id] = $response;
-                },
-                'rejected' => function (RequestException $reason, $index) {
-                    if ($this->debug) {
-                        if ($reason->getCode() == 404)
-                            echo "failed to request: $index  -  404 . \n";
-                        else
-                            echo "failed to request: $index  -  $reason . \n";
-                    }
+        $pool = new Pool($this->client, $requests, [
+            'concurrency' => $concurrency,
+            'fulfilled' => function (Response $response, $id) use (&$items) {
+                $items[$id] = $response;
+            },
+            'rejected' => function (RequestException $reason, $index) {
+                if ($this->debug) {
+                    if ($reason->getCode() == 404)
+                        echo "failed to request: $index  -  404 . \n";
+                    else
+                        echo "failed to request: $index  -  $reason . \n";
+                }
 
-                },
-            ]);
+            },
+        ]);
 
-            // Initiate the transfers and create a promise
-            $promise = $pool->promise();
+        // Initiate the transfers and create a promise
+        $promise = $pool->promise();
 
-            // Force the pool of requests to complete.
-            $promise->wait();
+        // Force the pool of requests to complete.
+        $promise->wait();
 
         return $items;
     }
+
+
 }

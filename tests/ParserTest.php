@@ -37,6 +37,16 @@ class ParserTest extends TestCase
         }
     }
 
+    public function testPreviewParsing()
+    {
+        $supreme = new SupremeNewYork();
+        foreach(SupremeNewYork::SEASONS as $season){
+            $result = $supreme->parsePreview($season);
+            file_put_contents($season . '.json', json_encode($result, \JSON_PRETTY_PRINT | \JSON_UNESCAPED_SLASHES));
+        }
+        $this->assertTrue(true);
+    }
+
     public function testParseSupComItem()
     {
         $http = new SupremeCommunityHttpClient();
@@ -62,7 +72,7 @@ class ParserTest extends TestCase
 
     public function testLookbook()
     {
-       // $this->markTestSkipped("");
+        // $this->markTestSkipped("");
         $parser = new SupremeLookbookParser("/previews/fallwinter2019/all", true);
         $products = $parser->parse();
 
@@ -133,7 +143,8 @@ class ParserTest extends TestCase
         $this->assertTrue(true);
     }
 
-    public function testSaveArrayToFile(){
+    public function testSaveArrayToFile()
+    {
         $items = [
             [
                 "name" => 'test',
