@@ -3,6 +3,7 @@
 
 namespace Supreme\Parser;
 
+use Carbon\Carbon;
 use GuzzleHttp\Exception\ClientException;
 use Illuminate\Support\Str;
 use Supreme\Parser\Http\SupremeCommunityHttpClient;
@@ -59,21 +60,25 @@ class SupremeNewYork
                 $product = $this->findExistingProduct($products, $item);
                 $images = ($product['images'] ?? []);
                 $colors = ($product['colors'] ?? []);
-
+                $color = Str::lower(str_replace(' ', '_', $item->color));
                 if ($item->color !== "Group")
-                    $colors[] = $item->color;
+                    $colors[] = $color;
                 $colors = collect($colors)->unique()->toArray();
 
                 $imageUrl = Str::replaceFirst('//', 'https://', $item->imageUrl);
-                if (!in_array($imageUrl, $images[$item->color] ?? []))
-                    $images[$item->color][] = $imageUrl;
+                if (!in_array($imageUrl, $images[$color] ?? []))
+                    $images[$color][] = $imageUrl;
 
                 $product = [
+                    "_id" => Str::random(16),
                     "title" => $item->title,
                     "caption" => $item->caption,
                     "category" => $this->extractCategoryFromUrl($item->url, $season),
+                    'season' => $season,
                     "images" => $images,
                     "colors" => $colors,
+                    "updated_at" => Carbon::now()->toDateTimeString(),
+                    "created_at" => Carbon::now()->toDateTimeString()
                 ];
                 $added = false;
                 foreach ($products as $key => $aProduct) {

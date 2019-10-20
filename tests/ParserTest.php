@@ -42,7 +42,7 @@ class ParserTest extends TestCase
         $supreme = new SupremeNewYork();
         foreach(SupremeNewYork::SEASONS as $season){
             $result = $supreme->parsePreview($season);
-            file_put_contents($season . '.json', json_encode($result, \JSON_PRETTY_PRINT | \JSON_UNESCAPED_SLASHES));
+            file_put_contents($season . '.json', json_encode($result, \JSON_PRETTY_PRINT | \JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
         }
         $this->assertTrue(true);
     }
