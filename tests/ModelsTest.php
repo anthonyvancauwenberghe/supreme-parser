@@ -31,7 +31,7 @@ class ModelsTest extends TestCase
         $sc = new SCDropTimesManager("eu");
         $times = $sc->all();
 
-        file_put_contents('droptimes.json', json_encode($times));
+        file_put_contents('droptimes.json', json_encode($times, \JSON_PRETTY_PRINT | \JSON_UNESCAPED_SLASHES));
         $this->assertNotEmpty($times);
     }
 
