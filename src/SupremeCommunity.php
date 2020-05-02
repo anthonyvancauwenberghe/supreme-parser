@@ -62,6 +62,7 @@ class SupremeCommunity
                 else
                     echo "failed to request: $id  -  " . $exception->getCode() . " - " . $exception->getMessage() . " \n";
             }
+            return false;
         }
         return $item;
     }
@@ -98,22 +99,48 @@ class SupremeCommunity
 
     public function getAllItems()
     {
+        if ($this->debug)
+            echo "starting to parse all items from supremecommunity" . " \n";
+
         $response = $this->supremeHttp->getSeasonItemsOverview('spring-summer2019');
         $seasons = (new SCSeasonListPicker($response))->parse();
 
+        if ($this->debug)
+            echo "Found " . count($seasons) . " seasons to parse" . " \n"." \n";
+
         $ids = collect($seasons)->mapWithKeys(function (array $season) {
             sleep(random_int(500, 1000) / 1000);
+
+            if ($this->debug)
+                echo "Started parsing ids from season " . $season['name'] . " \n";
+
             $response = $this->supremeHttp->get($season['route']);
             $ids = (new SeasonListItemIdsParser($response))->parse();
+
+            if ($this->debug)
+                echo "Finished parsing ids from season " . $season['name'] . " \n". " \n";
+
             return [$season['name'] => $ids];
         });
         sleep(5);
+
+        if ($this->debug)
+            echo "Starting to parse Seasons" . " \n";
+
         $items = $ids->mapWithKeys(function (array $categoryIds, string $season) {
+
+            if ($this->debug)
+                echo "Started Parsing season $season" . " \n";
+
             $seasonItems = collect($categoryIds)->mapWithKeys(function (array $ids, string $category) {
                 $items = collect($ids)->map(function ($id) use ($category) {
                     sleep(random_int(1000, 2000) / 1000);
                     $response = $this->supremeHttp->getItem($id);
                     $item = (new DropListItemParser($response, $category, $id))->parse();
+
+                    if ($this->debug)
+                        echo "Successfully parsed: $id - " . $item['title'] . " \n";
+
                     return $item;
                 })->toArray();
                 sleep(5);
@@ -123,6 +150,8 @@ class SupremeCommunity
             return [$season => $seasonItems];
         })->toArray();
 
+        if ($this->debug)
+            echo "Succesfully parsed all seasons";
 
         return $items;
     }
