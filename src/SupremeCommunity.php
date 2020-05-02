@@ -7,6 +7,7 @@ use GuzzleHttp\Exception\ClientException;
 use Supreme\Parser\Http\SupremeCommunityHttpClient;
 use Supreme\Parser\Parsers\DropListItemIdsParser;
 use Supreme\Parser\Parsers\DropListItemParser;
+use Supreme\Parser\Parsers\LeftToDropIdParser;
 use Supreme\Parser\Parsers\SCSeasonListPicker;
 use Supreme\Parser\Parsers\SeasonListItemIdsParser;
 
@@ -29,6 +30,40 @@ class SupremeCommunity
     {
         $dom = (($season === null || $date === null) ? $this->supremeHttp->getLatestDroplistPage() : $this->supremeHttp->getDropListPageByDate($season, $date));
         return (new DropListItemIdsParser($dom))->parse();
+    }
+
+    public function getLeftToDropItems()
+    {
+        $dom = $this->supremeHttp->getLeftToDropPage();
+        $ids = (new LeftToDropIdParser($dom))->parse();
+
+        $data = collect($ids)->map(function ($id, $category) {
+            return $this->getItemFromId($category, $id);
+        });
+
+        return $data;
+    }
+
+    public function getItemFromId($id, ?string $category = "Unknown")
+    {
+        try {
+            $itemParser = new DropListItemParser($this->supremeHttp->getItem($id), $category, $id);
+
+            $item = $itemParser->parse();
+
+            if ($this->debug)
+                echo "Successfully parsed: $id - " . $item['title'] . " \n";
+
+            sleep($this->delay);
+        } catch (ClientException $exception) {
+            if ($this->debug) {
+                if ($exception->getCode() == 404)
+                    echo "failed to request: $id  -  404 . \n";
+                else
+                    echo "failed to request: $id  -  " . $exception->getCode() . " - " . $exception->getMessage() . " \n";
+            }
+        }
+        return $item;
     }
 
     public function getDropListItems(?string $season = null, ?string $date = null)

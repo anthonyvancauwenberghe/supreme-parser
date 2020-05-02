@@ -34,4 +34,13 @@ abstract class ResponseParser
         }
         return $output;
     }
+
+    protected function firstNonEmptyTextNode(Dom\HtmlNode $node)
+    {
+        foreach ($node->getChildren() as $child) {
+            if ($child instanceof Dom\TextNode && $child->text() !== null)
+                return $child->text();
+        }
+        return null;
+    }
 }

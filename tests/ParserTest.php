@@ -155,4 +155,11 @@ class ParserTest extends TestCase
         $this->assertTrue(true);
     }
 
+    public function testLeftToDrop(){
+        $sc = new SupremeCommunity();
+        $items = $sc->getLeftToDropItems();
+
+        $this->assertTrue(true);
+    }
+
 }

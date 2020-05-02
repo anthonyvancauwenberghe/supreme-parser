@@ -30,13 +30,19 @@ class SupremeCommunityHttpClient
             ]]);
     }
 
+    public function getLeftToDropPage()
+    {
+        return $this->client->get("/season/latest/lefttodrop/");
+    }
+
     public function getLatestDroplistUrl(): string
     {
         $parser = new LatestDroplistUrlParser($this->getLatestSeasonDropListPage());
         return $parser->parse();
     }
 
-    public function getSeasonItemsOverview(string $season){
+    public function getSeasonItemsOverview(string $season)
+    {
         return $this->client->get("/season/$season/overview/");
     }
 
@@ -55,19 +61,23 @@ class SupremeCommunityHttpClient
         return $this->client->get($this->getLatestDroplistUrl());
     }
 
-    public function getItem($id){
+    public function getItem($id)
+    {
         return $this->client->get("/season/itemdetails/$id/");
     }
 
-    public function getItemVote($id){
+    public function getItemVote($id)
+    {
         return $this->client->get("/votes/items/$id/box/");
     }
 
-    public function getLatestSeasonDropTimes(string $region) {
+    public function getLatestSeasonDropTimes(string $region)
+    {
         return $this->client->get("/season/latest/times/$region/");
     }
 
-    public function get(string $route) {
+    public function get(string $route)
+    {
         return $this->client->get($route);
     }
 }
