@@ -74,7 +74,7 @@ class SupremeNewsParser extends ResponseParser
         return $traverser->traverseTillFirst(function (?HtmlNode $node) {
             if ($node === null)
                 return;
-            $article = $node->text;
+            $article = $node->innerHtml();
             $article = str_replace('//', 'https://', $article);
             $article = str_replace('[', '', $article);
             $article = str_replace(']', '', $article);
