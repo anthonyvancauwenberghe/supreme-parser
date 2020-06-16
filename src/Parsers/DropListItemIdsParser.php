@@ -11,7 +11,7 @@ class DropListItemIdsParser extends ResponseParser
 {
     public function parse(): array
     {
-        $traverser = new RecursiveNodeWalker($this->dom->root, "data-itemid", null);
+        $traverser = new RecursiveNodeWalker($this->dom->root, "data-itemid");
 
         $data = ($traverser->traverse(function (HtmlNode $node) {
             if (is_numeric($id = $node->getTag()->getAttribute('data-itemid')['value'])) {

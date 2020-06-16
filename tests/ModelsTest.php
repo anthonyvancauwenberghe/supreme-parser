@@ -13,7 +13,7 @@ class ModelsTest extends TestCase
         $sc = new SCDropTimesManager("eu");
         $seasons = $sc->seasons();
 
-        $this->assertCount(5, $seasons);
+        $this->assertCount(7, $seasons);
     }
 
     public function testSupremeCommunityDropTimesWeekParsing()

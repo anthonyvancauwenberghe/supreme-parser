@@ -25,6 +25,8 @@ class DropListItemParser extends ResponseParser
     {
         $title = $this->parseTitle();
         $caption = $this->parseDescription();
+        $votesUp = $this->parseVotesUp();
+        $votesDown = $this->parseVotesDown();
         $prices = $this->parsePrices();
         $colors = $this->parseColors();
         $image = $this->parseImage();
@@ -37,6 +39,8 @@ class DropListItemParser extends ResponseParser
             "caption" => $caption,
             "prices" => $prices,
             "colors" => $colors,
+            "votes_up" => $votesUp,
+            "votes_down" => $votesDown,
             "image" => $image,
             "images" => $this->parseImages(),
             "release" => $release
@@ -106,6 +110,32 @@ class DropListItemParser extends ResponseParser
         });
     }
 
+    protected function parseVotesUp()
+    {
+        $traverser = new RecursiveNodeWalker($this->dom->root, 'class', 'upvotes', false);
+        $data = $traverser->traverse(function (?HtmlNode $node) {
+            if ($node === null)
+                return null;
+
+            return ((int)($node->innerHtml() ?? $node->text())) ?? null;
+        });
+
+        return $data[0];
+    }
+
+    protected function parseVotesDown()
+    {
+        $traverser = new RecursiveNodeWalker($this->dom->root, 'class', 'downvotes', false);
+        $data = $traverser->traverse(function (?HtmlNode $node) {
+            if ($node === null)
+                return null;
+
+            return ((int)($node->innerHtml() ?? $node->text())) ?? null;
+        });
+
+        return $data[0];
+    }
+
     protected function parseImages()
     {
         $traverser = new RecursiveNodeWalker($this->dom->root, 'data-image-hq');
@@ -138,7 +168,7 @@ class DropListItemParser extends ResponseParser
         preg_match_all('/<(.+?)[\s]*\/?[\s]*>/si', trim($tags), $tags);
         $tags = array_unique($tags[1]);
 
-        if (is_array($tags) AND count($tags) > 0) {
+        if (is_array($tags) and count($tags) > 0) {
             if ($invert == FALSE) {
                 return preg_replace('@<(?!(?:' . implode('|', $tags) . ')\b)(\w+)\b.*?>.*?</\1>@si', '', $text);
             } else {

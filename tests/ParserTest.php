@@ -66,7 +66,7 @@ class ParserTest extends TestCase
     public function testGetItemsBySeasonDate()
     {
         $client = new SupremeCommunity(2, true);
-        $items = $client->getDropListItems('spring-summer2019', '2019-07-05');
+        $items = $client->getDropListItems('spring-summer2020', '2020-06-11');
         $this->assertNotEmpty($items);
     }
 
