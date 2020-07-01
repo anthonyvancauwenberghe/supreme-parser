@@ -95,7 +95,7 @@ class DropListItemParser extends ResponseParser
             return null;
         })->reject(fn($value) => $value === null || empty($value))->toArray();
 
-        return $labels[0];
+        return $labels[0] ?? [];
         // return collect($prices[0])->transform(fn($price) => trim($price))->toArray();
     }
 
@@ -129,7 +129,7 @@ class DropListItemParser extends ResponseParser
             return ((int)($node->innerHtml() ?? $node->text())) ?? null;
         });
 
-        return $data[0] ?? [];
+        return $data[0] ?? 0;
     }
 
     protected function parseVotesDown()
@@ -142,7 +142,7 @@ class DropListItemParser extends ResponseParser
             return ((int)($node->innerHtml() ?? $node->text())) ?? null;
         });
 
-        return $data[0];
+        return $data[0] ?? 0;
     }
 
     protected function parseImages()
