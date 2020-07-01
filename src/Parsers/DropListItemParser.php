@@ -8,6 +8,8 @@ use Supreme\Parser\Abstracts\ResponseParser;
 use Supreme\Parser\Http\SupremeCommunityHttpClient;
 use Supreme\Parser\Traversers\RecursiveNodeWalker;
 use Supreme\Parser\Traversers\RecursiveNodeWalkerTextFinder;
+use function foo\func;
+use function PHPUnit\Framework\isEmpty;
 
 class DropListItemParser extends ResponseParser
 {
@@ -78,36 +80,43 @@ class DropListItemParser extends ResponseParser
 
     protected function parsePrices()
     {
-        $traverser = new RecursiveNodeWalker($this->dom->root, 'class', 'price-label', false);
-        return $traverser->traverse(function (?HtmlNode $node) {
+        $traverser = new RecursiveNodeWalker($this->dom->root, 'class', 'itemdetails-labels', false);
+        $nodes = $traverser->traverse();
 
-            if ($node === null)
-                throw new \RuntimeException("failed to parse prices from droplist item");
-
-            $price = ($node->innerHtml() ?? $node->text());
-
-            $encoded = ltrim(htmlentities($price));
-            if (in_array($start = $encoded[0], ['$', '&'])) {
-                return ltrim($this->strip_tags_content(htmlspecialchars_decode($price, ENT_QUOTES)));
+        $labels = collect($nodes)->map(function ($node) {
+            if ($node instanceof HtmlNode) {
+                $pricelabels = (new RecursiveNodeWalker($node, 'class', 'price-label', false))->traverse();
+                $data = [];
+                foreach ($pricelabels as $aNode) {
+                    $data[] = $aNode->innerHtml() ?? $aNode->text();
+                }
+                return $data;
             }
+            return null;
+        })->reject(fn($value) => $value === null || empty($value))->toArray();
 
-        });
+        return $labels[0];
+        // return collect($prices[0])->transform(fn($price) => trim($price))->toArray();
     }
 
     protected function parseColors()
     {
-        $traverser = new RecursiveNodeWalker($this->dom->root, 'class', 'price-label', false);
-        return $traverser->traverse(function (?HtmlNode $node) {
-            if ($node === null)
-                throw new \RuntimeException("failed to parse prices from droplist item");
+        $traverser = new RecursiveNodeWalker($this->dom->root, 'class', 'itemdetails-labels', false);
+        $nodes = $traverser->traverse();
 
-            $color = ($node->innerHtml() ?? $node->text());
-
-            $encoded = ltrim(htmlentities($color));
-            if (!in_array($start = $encoded[0], ['$', '&'])) {
-                return ltrim($this->strip_tags_content(htmlspecialchars_decode($color, ENT_QUOTES)));
+        $labels = collect($nodes)->map(function ($node) {
+            if ($node instanceof HtmlNode) {
+                $pricelabels = (new RecursiveNodeWalker($node, 'class', 'price-label', false))->traverse();
+                $data = [];
+                foreach ($pricelabels as $aNode) {
+                    $data[] = $aNode->innerHtml() ?? $aNode->text();
+                }
+                return $data;
             }
-        });
+            return null;
+        })->reject(fn($value) => $value === null || empty($value))->toArray();
+
+        return $labels[1];
     }
 
     protected function parseVotesUp()

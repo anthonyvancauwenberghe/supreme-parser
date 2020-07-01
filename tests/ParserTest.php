@@ -56,6 +56,15 @@ class ParserTest extends TestCase
         $this->assertTrue(true);
     }
 
+    public function testParseSupComItem2()
+    {
+        $http = new SupremeCommunityHttpClient();
+        $response = $http->getItem('6374');
+        $parser = new DropListItemParser($response);
+        $item = $parser->parse();
+        $this->assertTrue(true);
+    }
+
     public function testGetLatestDroplistItems()
     {
         $client = new SupremeCommunity(2, true);
